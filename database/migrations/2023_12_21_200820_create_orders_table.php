@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string("phone");
-            $table->string('password');
-            $table->enum('role', ['pharmacy', 'warehouse']);
-            $table->text("fcm_token");
-            $table->rememberToken();
+            $table->string('order_num');
+            $table->enum('status', ['pending','processing','completed','decline'])->default('pending');
+            $table->boolean('is_paid')->default(false);
+            $table->bigInteger("totalPrice");
+            $table->foreignId("user_id")->constrained("users");
             $table->timestamps();
         });
-
     }
 
     /**
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('orders');
     }
 };

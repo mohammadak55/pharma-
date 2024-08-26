@@ -5,13 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Categories extends Model
+class Pharmacy extends Model
 {
     use HasFactory;
     protected $guarded=[];
-
-    public function medications()
+    public function users()
     {
-        return $this->hasMany(Medication::class , "category_id");
+        return $this->belongsTo(User::class);
+    }
+    public function order()
+    {
+        return $this->hasMany(Order::class);
     }
 }

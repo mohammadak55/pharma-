@@ -9,19 +9,15 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string("phone");
-            $table->string('password');
-            $table->enum('role', ['pharmacy', 'warehouse']);
-            $table->text("fcm_token");
-            $table->rememberToken();
+            $table->string('warehouse_name');
+            $table->string('location');
+            $table->foreignId('user_id')->constrained("users")->default(0);
             $table->timestamps();
         });
-
     }
 
     /**
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('warehouses');
     }
 };

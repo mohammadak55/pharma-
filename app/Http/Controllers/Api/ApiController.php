@@ -3,39 +3,107 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Pharmacy;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Warehouse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Validation\ValidationException;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class ApiController extends Controller
 {
-    // User Register (POST, formdata)
-    public function register(Request $request){
-
+    public function register(Request $request)
+    {
         // data validation
         $request->validate([
             "name" => "required",
             "phone" => "required|unique:users",
-            "password" => "required|confirmed"
+            "password" => "required|confirmed",
+            'role' => 'required|in:pharmacy,warehouse',
         ]);
-
         // User Model
-        User::create([
-            "name" => $request->name,
-            "phone" => $request->phone,
-            "password" => Hash::make($request->password)
-        ]);
+        $role1 = $request->role;
 
+        if($role1 == "pharmacy")
+        {
+            $val = $request->validate([
+                "pharmacy_name" => "required",
+                "pharmacy_location" => "required",
+            ]);
+
+            if (!$val) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Required data missing",
+                ]);
+            }
+
+            $user1 = User::create([
+                "name" => $request->name,
+                "phone" => $request->phone,
+                'role' => $request->role,
+                "fcm_token" =>$request->fcm_token,
+                "password" => Hash::make($request->password)
+            ]);
+
+            $pharm =Pharmacy::create([
+                "id" => $user1->id,
+                "pharmacy_name" => $request->pharmacy_name,
+                "pharmacy_location" => $request->pharmacy_location,
+                "user_id"=>$user1->id,
+            ]);
+            return response()->json([
+                "status" => true,
+                "message" => "User registered successfully at $pharm->pharmacy_name "
+            ]);
+        }
+
+        if($role1 == "warehouse")
+        {
+            $val = $request->validate([
+                "warehouse_name" => "required",
+                "location" => "required",
+            ]);
+
+            if (!$val) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Required data missing",
+                ]);
+            }
+
+            $user1 = User::create([
+                "name" => $request->name,
+                "phone" => $request->phone,
+                'role' => $request->role,
+                "fcm_token" =>$request->fcm_token,
+                "password" => Hash::make($request->password)
+            ]);
+
+            $ware =Warehouse::create([
+                "id" => $user1->id ,
+                "warehouse_name" => $request->warehouse_name,
+                "location" => $request->location,
+                "user_id"=>$user1->id,
+            ]);
+            return response()->json([
+                "status" => true,
+                "message" => "User registered successfully at $ware->warehouse_name"
+            ]);
+        }
+        // Response
         // Response
         return response()->json([
             "status" => true,
-            "message" => "User registered successfully"
+            "message" => "missing data"
         ]);
     }
-
-    // User Login (POST, formdata)
-    public function login(Request $request){
+    public function login(Request $request)
+    {
 
         // data validation
         $request->validate([
@@ -49,7 +117,7 @@ class ApiController extends Controller
             "password" => $request->password
         ]);
 
-        if(!empty($token)){
+        if (!empty($token)) {
 
             return response()->json([
                 "status" => true,
@@ -63,19 +131,8 @@ class ApiController extends Controller
             "message" => "Invalid details"
         ]);
     }
-    public function refreshToken(){
-
-        $newToken = auth()->refresh();
-
-        return response()->json([
-            "stat us" =>true ,
-            "message" => "new access token generated" ,
-            "token" => $newToken
-        ]);
-
-    }
-    // User Profile (GET)
-    public function profile(){
+    public function profile()
+    {
 
         $userdata = auth()->user();
 
@@ -85,24 +142,10 @@ class ApiController extends Controller
             "data" => $userdata
         ]);
     }
-
-    // To generate refresh token value
-    // public function refreshToken(){
-
-    //     $newToken = auth()->refresh();
-
-    //     return response()->json([
-    //         "status" => true,
-    //         "message" => "New access token",
-    //         "token" => $newToken
-    //     ]);
-    // }
-
-    // User Logout (GET)
-    public function logout(){
+    public function logout()
+    {
 
         auth()->logout();
-
         return response()->json([
             "status" => true,
             "message" => "User logged out successfully"

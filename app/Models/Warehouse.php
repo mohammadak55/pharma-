@@ -5,13 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Categories extends Model
+class Warehouse extends Model
 {
     use HasFactory;
     protected $guarded=[];
 
-    public function medications()
-    {
-        return $this->hasMany(Medication::class , "category_id");
-    }
+public function medication()
+{
+    return $this->hasMany(Medication::class);
+}
+public function user()
+{
+    return $this->hasMany(User::class);
+}
+
 }

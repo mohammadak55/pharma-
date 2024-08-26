@@ -11,17 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('favorites', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string("phone");
-            $table->string('password');
-            $table->enum('role', ['pharmacy', 'warehouse']);
-            $table->text("fcm_token");
-            $table->rememberToken();
+            $table->string("MedicinName");
+            $table->foreignId("med_id")->constrained("medications");
             $table->timestamps();
         });
-
     }
 
     /**
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('favorites');
     }
 };

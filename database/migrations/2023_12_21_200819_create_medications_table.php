@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('medications', function (Blueprint $table) {
             $table->id();
+            $table->foreignId("warehouse_id")->constrained("warehouses");
             $table->string("scientific name");
             $table->string("Trade Name");
             $table->string("Manufacturer");
+            $table->longText("ImagePath");
             $table->bigInteger("Available quantity");
-            $table->string("Expiry date");
+            $table->date("Expiry date");
+            $table->enum("expired" , ["available" , "expired"])->default("available");
             $table->bigInteger("Price");
             $table->foreignId("category_id")->constrained("categories");
             $table->timestamps();
